@@ -2,11 +2,9 @@ import logging
 import json
 import azure.functions as func
 from datetime import datetime
-from trading_database import TradingDatabase
-from oi_reversal_strategy import OIReversalStrategy
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    """Dashboard HTTP Function - Returns strategy status and performance data"""
+    """Dashboard HTTP Function - Returns basic status"""
 
     logging.info('Dashboard function triggered')
 
@@ -22,45 +20,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     try:
-        # Initialize components
-        db = TradingDatabase()
-        strategy = OIReversalStrategy(db)
-
-        # Get dashboard data
-        status = strategy.get_strategy_status()
-        performance = status['performance']
-
-        # Get recent signals and positions
-        recent_signals = db.get_recent_signals(limit=10)
-        open_positions = db.get_open_positions()
-
-        # Get P&L history for charts
-        pnl_history = db.get_pnl_history(days=30)
-
-        # Prepare dashboard response
+        # Simple test response
         dashboard_data = {
             'status': 'success',
-            'timestamp': status.get('last_updated', ''),
-            'performance': {
-                'win_rate': performance.get('win_rate', 0),
-                'total_pnl': performance.get('total_pnl', 0),
-                'total_trades': performance.get('total_trades', 0),
-                'winning_trades': performance.get('winning_trades', 0),
-                'profit_factor': performance.get('profit_factor', 0),
-                'max_drawdown': performance.get('max_drawdown', 0)
-            },
-            'positions': {
-                'open_count': len(open_positions),
-                'open_positions': open_positions[:5]  # Last 5 positions
-            },
-            'signals': {
-                'recent_count': len(recent_signals),
-                'recent_signals': recent_signals[:5]  # Last 5 signals
-            },
-            'charts': {
-                'pnl_history': pnl_history
-            },
-            'parameters': status.get('parameters', {})
+            'message': 'OI Reversal Strategy Dashboard API',
+            'timestamp': str(datetime.now()),
+            'version': '1.0.0',
+            'functions': ['dashboard', 'manual', 'strategy-runner']
         }
 
         # Handle CORS for web frontend
@@ -72,7 +38,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         }
 
         return func.HttpResponse(
-            json.dumps(dashboard_data, default=str),
+            json.dumps(dashboard_data),
             status_code=200,
             headers=headers
         )
