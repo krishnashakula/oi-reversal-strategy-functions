@@ -1,6 +1,7 @@
 import logging
 import json
 import azure.functions as func
+from datetime import datetime
 from trading_database import TradingDatabase
 from oi_reversal_strategy import OIReversalStrategy
 
